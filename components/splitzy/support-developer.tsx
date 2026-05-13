@@ -16,7 +16,7 @@ interface SupportDeveloperProps {
   variant?: "button" | "card"
 }
 
-const UPI_ID = "6305171277@fam"
+const UPI_ID = ""
 
 export function SupportDeveloper({ variant = "button" }: SupportDeveloperProps) {
   const [open, setOpen] = useState(false)
