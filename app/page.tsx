@@ -71,6 +71,17 @@ export default function Home() {
     } catch { /* ignore */ }
   }, [LOCAL_STORAGE_KEY])
 
+  // Push ads to render whenever app state changes
+  useEffect(() => {
+    if (typeof window !== 'undefined' && (window as any).adsbygoogle) {
+      try {
+        ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({})
+      } catch (e) {
+        console.error('Error rendering ads:', e)
+      }
+    }
+  }, [appState])
+
   // Restore session from localStorage on first client render
   useEffect(() => {
     setIsClient(true)
@@ -406,44 +417,94 @@ export default function Home() {
               <button className="underline font-medium" onClick={() => window.location.reload()}>Retry</button>
             </div>
           )}
-          {appState === 'welcome' && <WelcomeScreen onCreateGroup={handleCreateGroup} />}
+          {appState === 'welcome' && (
+            <>
+              <WelcomeScreen onCreateGroup={handleCreateGroup} />
+              <div className="flex justify-center px-4 py-8">
+                <ins
+                  className="adsbygoogle"
+                  style={{ display: 'block' }}
+                  data-ad-client="ca-pub-9197617195442082"
+                  data-ad-slot="1234567890"
+                  data-ad-format="auto"
+                  data-full-width-responsive="true"
+                />
+              </div>
+            </>
+          )}
           {appState === 'createGroup' && (
             <GroupCreation onGroupCreated={handleGroupCreated} onBack={() => setAppState('welcome')} />
           )}
           {(appState === 'journey' || appState === 'sharedEdit') && (
-            <JourneyScreen
-              groupId={groupId}
-              members={members}
-              transactions={transactions}
-              onAddTransaction={handleAddTransaction}
-              onCompleteTransaction={handleCompleteTransaction}
-              onEndJourney={handleEndJourney}
-              permission={permission}
-              canEndJourney={permission === 'creator'}
-            />
+            <>
+              <JourneyScreen
+                groupId={groupId}
+                members={members}
+                transactions={transactions}
+                onAddTransaction={handleAddTransaction}
+                onCompleteTransaction={handleCompleteTransaction}
+                onEndJourney={handleEndJourney}
+                permission={permission}
+                canEndJourney={permission === 'creator'}
+              />
+              <div className="flex justify-center px-4 py-8">
+                <ins
+                  className="adsbygoogle"
+                  style={{ display: 'block' }}
+                  data-ad-client="ca-pub-9197617195442082"
+                  data-ad-slot="2345678901"
+                  data-ad-format="auto"
+                  data-full-width-responsive="true"
+                />
+              </div>
+            </>
           )}
           {appState === 'endJourney' && (
-            <EndJourneyScreen
-              transactions={transactions}
-              members={members}
-              onContinue={handleContinue}
-              onDoneSplitting={handleDoneSplitting}
-              canEndJourney={permission === 'creator'}
-              onCompleteTransaction={handleCompleteTransaction}
-              permission={permission}
-            />
+            <>
+              <EndJourneyScreen
+                transactions={transactions}
+                members={members}
+                onContinue={handleContinue}
+                onDoneSplitting={handleDoneSplitting}
+                canEndJourney={permission === 'creator'}
+                onCompleteTransaction={handleCompleteTransaction}
+                permission={permission}
+              />
+              <div className="flex justify-center px-4 py-8">
+                <ins
+                  className="adsbygoogle"
+                  style={{ display: 'block' }}
+                  data-ad-client="ca-pub-9197617195442082"
+                  data-ad-slot="3456789012"
+                  data-ad-format="auto"
+                  data-full-width-responsive="true"
+                />
+              </div>
+            </>
           )}
           {appState === 'sharedView' && (
-            <EndJourneyScreen
-              transactions={transactions}
-              members={members}
-              onContinue={() => {}}
-              onDoneSplitting={() => {}}
-              canEndJourney={false}
-              isViewOnly={true}
-              onCompleteTransaction={handleCompleteTransaction}
-              permission={permission}
-            />
+            <>
+              <EndJourneyScreen
+                transactions={transactions}
+                members={members}
+                onContinue={() => {}}
+                onDoneSplitting={() => {}}
+                canEndJourney={false}
+                isViewOnly={true}
+                onCompleteTransaction={handleCompleteTransaction}
+                permission={permission}
+              />
+              <div className="flex justify-center px-4 py-8">
+                <ins
+                  className="adsbygoogle"
+                  style={{ display: 'block' }}
+                  data-ad-client="ca-pub-9197617195442082"
+                  data-ad-slot="4567890123"
+                  data-ad-format="auto"
+                  data-full-width-responsive="true"
+                />
+              </div>
+            </>
           )}
         </>
       )}
