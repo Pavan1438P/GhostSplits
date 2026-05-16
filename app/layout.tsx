@@ -1,13 +1,12 @@
 import type { Metadata } from 'next'
 import type { Viewport } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Geist } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import Script from 'next/script'
 import { ErrorBoundary } from '@/components/error-boundary'
 import './globals.css'
 
-const _geist = Geist({ subsets: ["latin"] });
-const _geistMono = Geist_Mono({ subsets: ["latin"] });
+const _geist = Geist({ subsets: ['latin'], display: 'swap' })
 
 const SITE_URL = 'https://ghostsplits.com'
 
@@ -71,18 +70,22 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-1G6ZBNK24E"
-          strategy="afterInteractive"
-        />
-        <Script id="gtag-init" strategy="afterInteractive">
-          {`window.dataLayer = window.dataLayer || [];
+        {process.env.NODE_ENV === 'production' && (
+          <>
+            <Script
+              src="https://www.googletagmanager.com/gtag/js?id=G-1G6ZBNK24E"
+              strategy="afterInteractive"
+            />
+            <Script id="gtag-init" strategy="afterInteractive">
+              {`window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);} 
 gtag('js', new Date());
 gtag('config', 'G-1G6ZBNK24E');`}
-        </Script>
+            </Script>
+          </>
+        )}
       </head>
-      <body className="font-sans antialiased">
+      <body className={`${_geist.className} font-sans antialiased`}>
         <ErrorBoundary>
           {children}
         </ErrorBoundary>

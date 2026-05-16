@@ -125,7 +125,14 @@ export function GroupCreation({ onGroupCreated, onBack }: GroupCreationProps) {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center">
-            <Image src="/GhostSplits_LOGO.png" alt="GhostSplits" width={48} height={48} className="object-contain" />
+            <Image
+              src="/GhostSplits_LOGO.png"
+              alt="GhostSplits"
+              width={48}
+              height={48}
+              loading="lazy"
+              className="object-contain"
+            />
           </div>
           <CardTitle className="text-2xl">
             {step === "count" ? "Create Your Group" : "Name Your Members"}

@@ -186,7 +186,14 @@ export function EndJourneyScreen({
     <div className="min-h-screen px-4 py-8">
       <div className="mx-auto max-w-2xl space-y-6">
         <div className="flex items-center justify-center gap-2 mb-2">
-          <Image src="/GhostSplits_LOGO.png" alt="GhostSplits" width={36} height={36} className="object-contain" />
+          <Image
+            src="/GhostSplits_LOGO.png"
+            alt="GhostSplits"
+            width={36}
+            height={36}
+            loading="lazy"
+            className="object-contain"
+          />
           <span className="text-lg font-bold tracking-tight text-foreground">GhostSplits</span>
         </div>
         <Card>
