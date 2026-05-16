@@ -78,6 +78,8 @@ export default function Home() {
     const urlParams = new URLSearchParams(window.location.search)
     if (urlParams.get('group')) return // shared link takes priority
 
+    let cancelled = false
+
     try {
       const saved = localStorage.getItem(LOCAL_STORAGE_KEY)
       if (!saved) return
@@ -102,7 +104,7 @@ export default function Home() {
       if (subscriptionCleanup.current) {
         subscriptionCleanup.current()
       }
-      subscriptionCleanup.current = subscribeToGroup(session.groupId, (updatedData) => {
+      void subscribeToGroup(session.groupId, (updatedData) => {
         if (!updatedData) return
         setMembers(updatedData.members)
         setTransactions(
@@ -112,8 +114,20 @@ export default function Home() {
             status: transaction.status ?? 'active',
           })),
         )
+      }).then((cleanup) => {
+        if (!cancelled) {
+          subscriptionCleanup.current = cleanup
+        } else {
+          cleanup()
+        }
       })
     } catch { /* corrupted data — ignore */ }
+
+    return () => {
+      cancelled = true
+      subscriptionCleanup.current?.()
+      subscriptionCleanup.current = null
+    }
   }, [])
 
   // Auto-save session to localStorage whenever key state changes (debounced)
@@ -190,7 +204,7 @@ export default function Home() {
           subscriptionCleanup.current()
         }
 
-        subscriptionCleanup.current = subscribeToGroup(sharedGroupId, (updatedData) => {
+        void subscribeToGroup(sharedGroupId, (updatedData) => {
           if (!updatedData) return
           setMembers(updatedData.members)
           setTransactions(
@@ -200,6 +214,12 @@ export default function Home() {
               status: transaction.status ?? "active",
             })),
           )
+        }).then((cleanup) => {
+          if (!cancelled) {
+            subscriptionCleanup.current = cleanup
+          } else {
+            cleanup()
+          }
         })
       })
       .catch((err) => {
@@ -253,7 +273,7 @@ export default function Home() {
     if (subscriptionCleanup.current) {
       subscriptionCleanup.current()
     }
-    subscriptionCleanup.current = subscribeToGroup(uniqueId, (updatedData) => {
+    subscriptionCleanup.current = await subscribeToGroup(uniqueId, (updatedData) => {
       if (!updatedData) return
       setMembers(updatedData.members)
       setTransactions(updatedData.transactions.map((transaction) => ({
@@ -338,7 +358,14 @@ export default function Home() {
       {!isClient ? (
         <div className="flex min-h-screen items-center justify-center">
           <div className="text-center">
-            <Image src="/GhostSplits_LOGO.png" alt="GhostSplits" width={100} height={100} className="mx-auto mb-4 object-contain" />
+            <Image
+              src="/GhostSplits_LOGO.png"
+              alt="GhostSplits"
+              width={100}
+              height={100}
+              priority
+              className="mx-auto mb-4 object-contain"
+            />
             <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
             <p className="text-sm text-muted-foreground">Loading GhostSplits...</p>
           </div>
@@ -346,7 +373,14 @@ export default function Home() {
       ) : isSharedLink && sharedLoading ? (
         <div className="flex min-h-screen items-center justify-center">
           <div className="text-center">
-            <Image src="/GhostSplits_LOGO.png" alt="GhostSplits" width={100} height={100} className="mx-auto mb-4 object-contain" />
+            <Image
+              src="/GhostSplits_LOGO.png"
+              alt="GhostSplits"
+              width={100}
+              height={100}
+              priority
+              className="mx-auto mb-4 object-contain"
+            />
             <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
             <p className="text-sm text-muted-foreground">Loading shared group...</p>
           </div>

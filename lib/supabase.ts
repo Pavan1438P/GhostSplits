@@ -1,5 +1,5 @@
-import { createClient } from '@supabase/supabase-js'
 import type { GroupData } from '@/app/page'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -10,11 +10,20 @@ if (!supabaseUrl || !supabaseAnonKey) {
   )
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+let supabase: SupabaseClient | null = null
+
+async function getSupabaseClient(): Promise<SupabaseClient> {
+  if (supabase) return supabase
+
+  const { createClient } = await import('@supabase/supabase-js')
+  supabase = createClient(supabaseUrl!, supabaseAnonKey!)
+  return supabase
+}
 
 export async function loadGroupData(groupId: string): Promise<GroupData | null> {
   try {
-    const { data, error } = await supabase
+    const supabaseClient = await getSupabaseClient()
+    const { data, error } = await supabaseClient
       .from('groups')
       .select('id,creator,members,transactions,created_at')
       .eq('id', groupId)
@@ -44,7 +53,8 @@ export async function loadGroupData(groupId: string): Promise<GroupData | null> 
 }
 
 export async function saveGroupData(groupData: GroupData): Promise<void> {
-  const { error } = await supabase.from('groups').upsert({
+  const supabaseClient = await getSupabaseClient()
+  const { error } = await supabaseClient.from('groups').upsert({
     id: groupData.id,
     creator: groupData.creator,
     members: groupData.members,
@@ -60,14 +70,16 @@ export async function saveGroupData(groupData: GroupData): Promise<void> {
 }
 
 export async function deleteGroupData(groupId: string): Promise<void> {
-  await supabase.from('groups').delete().eq('id', groupId)
+  const supabaseClient = await getSupabaseClient()
+  await supabaseClient.from('groups').delete().eq('id', groupId)
 }
 
-export function subscribeToGroup(
+export async function subscribeToGroup(
   groupId: string,
   callback: (groupData: GroupData | null) => void,
-) {
-  const channel = supabase
+): Promise<() => void> {
+  const supabaseClient = await getSupabaseClient()
+  const channel = supabaseClient
     .channel(`group-${groupId}`)
     .on(
       'postgres_changes',
@@ -93,6 +105,6 @@ export function subscribeToGroup(
     .subscribe()
 
   return () => {
-    void supabase.removeChannel(channel)
+    void supabaseClient.removeChannel(channel)
   }
 }
